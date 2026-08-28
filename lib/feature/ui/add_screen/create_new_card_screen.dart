@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:flash_card_quiz/core/model/model.dart';
 import 'package:flash_card_quiz/core/state_mangment/cubit/new_card_cubit.dart';
 import 'package:flash_card_quiz/core/themeing/theme.dart';
 import 'package:flash_card_quiz/feature/ui/add_screen/widget/card_text_field.dart';
@@ -9,7 +10,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class CreateNewCardScreen extends StatefulWidget {
-  const CreateNewCardScreen({super.key});
+  const CreateNewCardScreen({super.key, this.quiz, this.index});
+
+  /// If provided, the screen will be in edit mode
+  final QuizModel? quiz;
+  final int? index;
 
   @override
   State<CreateNewCardScreen> createState() => _CreateNewCardScreenState();
@@ -19,6 +24,18 @@ class _CreateNewCardScreenState extends State<CreateNewCardScreen> {
   final TextEditingController questionController = TextEditingController();
   final TextEditingController answerController = TextEditingController();
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+
+  bool get isEditMode => widget.quiz != null && widget.index != null;
+
+  @override
+  void initState() {
+    super.initState();
+    if (isEditMode) {
+      questionController.text = widget.quiz!.question;
+      answerController.text = widget.quiz!.answer;
+    }
+  }
+
   @override
   void dispose() {
     questionController.dispose();
@@ -33,9 +50,9 @@ class _CreateNewCardScreenState extends State<CreateNewCardScreen> {
       appBar: AppBar(
         backgroundColor: AppColors.surfaceWhite,
         centerTitle: true,
-        title: const Text(
-          'Add Flashcard',
-          style: TextStyle(
+        title: Text(
+          isEditMode ? 'Edit Flashcard' : 'Add Flashcard',
+          style: const TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.w700,
             color: AppColors.onSurface,
@@ -92,13 +109,24 @@ class _CreateNewCardScreenState extends State<CreateNewCardScreen> {
               ),
 
               SaveFlashcardButton(
+                buttonText:
+                    isEditMode ? 'Update Flashcard' : 'Save Flashcard',
                 onPressed: () {
                   if (!formKey.currentState!.validate()) return;
                   log(questionController.text);
-                  context.read<NewCardCubit>().addCard(
-                    questionController.text,
-                    answerController.text,
-                  );
+
+                  if (isEditMode) {
+                    context.read<NewCardCubit>().editCard(
+                          widget.index!,
+                          questionController.text,
+                          answerController.text,
+                        );
+                  } else {
+                    context.read<NewCardCubit>().addCard(
+                          questionController.text,
+                          answerController.text,
+                        );
+                  }
                   Navigator.pop(context);
                 },
               ),

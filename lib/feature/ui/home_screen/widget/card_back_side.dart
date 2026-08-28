@@ -5,11 +5,7 @@ import 'package:flash_card_quiz/feature/ui/home_screen/widget/card_menu_button.d
 import 'package:flutter/material.dart';
 
 class CardBackSide extends StatelessWidget {
-  const CardBackSide({
-    super.key,
-    required this.answer,
-    this.onMenuPressed,
-  });
+  const CardBackSide({super.key, required this.answer, this.onMenuPressed});
 
   final String answer;
   final VoidCallback? onMenuPressed;

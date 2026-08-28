@@ -1,6 +1,8 @@
 import 'package:flash_card_quiz/core/state_mangment/cubit/new_card_cubit.dart';
 import 'package:flash_card_quiz/core/themeing/theme.dart';
+import 'package:flash_card_quiz/feature/ui/home_screen/widget/card_options_bottom_sheet.dart';
 import 'package:flash_card_quiz/feature/ui/home_screen/widget/custom_floating_action.dart';
+import 'package:flash_card_quiz/feature/ui/home_screen/widget/empty_state.dart';
 import 'package:flash_card_quiz/feature/ui/home_screen/widget/flash_card_item.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -32,44 +34,7 @@ class HomeScreen extends StatelessWidget {
 
           // ── Empty state ──
           if (cubit.quizList.isEmpty) {
-            return Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    width: 80,
-                    height: 80,
-                    decoration: BoxDecoration(
-                      color: AppColors.primary.withValues(alpha: 0.08),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: const Icon(
-                      Icons.library_books_rounded,
-                      size: 40,
-                      color: AppColors.primary,
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  const Text(
-                    'No Flash Cards Yet',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.onSurface,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  const Text(
-                    'Tap the + button to create\nyour first flash card!',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: AppColors.onSurfaceVariant,
-                    ),
-                  ),
-                ],
-              ),
-            );
+            return const EmptyState();
           }
 
           // ── Single card view (half screen) ──
@@ -84,6 +49,13 @@ class HomeScreen extends StatelessWidget {
                   itemBuilder: (context, index) {
                     return FlashCardItem(
                       quiz: cubit.quizList[index],
+                      onMenuPressed: () {
+                        showCardOptionsBottomSheet(
+                          context,
+                          quiz: cubit.quizList[index],
+                          index: index,
+                        );
+                      },
                     );
                   },
                 ),

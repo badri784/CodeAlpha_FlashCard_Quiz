@@ -2,8 +2,9 @@ import 'package:flash_card_quiz/core/themeing/theme.dart';
 import 'package:flutter/material.dart';
 
 class SaveFlashcardButton extends StatelessWidget {
-  const SaveFlashcardButton({super.key, this.onPressed});
+  const SaveFlashcardButton({super.key, this.onPressed, this.buttonText});
   final VoidCallback? onPressed;
+  final String? buttonText;
 
   @override
   Widget build(BuildContext context) {
@@ -26,9 +27,10 @@ class SaveFlashcardButton extends StatelessWidget {
             ),
           ),
           onPressed: onPressed,
-          child: const Text('Save Flashcard'),
+          child: Text(buttonText ?? 'Save Flashcard'),
         ),
       ),
     );
   }
 }
+
