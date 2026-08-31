@@ -7,8 +7,42 @@ import 'package:flash_card_quiz/feature/ui/home_screen/widget/flash_card_item.da
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  final PageController _pageController = PageController(viewportFraction: 0.9);
+  int _currentPage = 0;
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  void _goToPrevious() {
+    if (_currentPage > 0) {
+      _pageController.animateToPage(
+        _currentPage - 1,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      );
+    }
+  }
+
+  void _goToNext(int totalCards) {
+    if (_currentPage < totalCards - 1) {
+      _pageController.animateToPage(
+        _currentPage + 1,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -45,7 +79,12 @@ class HomeScreen extends StatelessWidget {
                 height: MediaQuery.of(context).size.height * 0.5,
                 child: PageView.builder(
                   itemCount: cubit.quizList.length,
-                  controller: PageController(viewportFraction: 0.9),
+                  controller: _pageController,
+                  onPageChanged: (index) {
+                    setState(() {
+                      _currentPage = index;
+                    });
+                  },
                   itemBuilder: (context, index) {
                     return FlashCardItem(
                       quiz: cubit.quizList[index],
@@ -62,12 +101,39 @@ class HomeScreen extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               Text(
-                '${cubit.quizList.length} card${cubit.quizList.length == 1 ? '' : 's'}',
+                '${_currentPage + 1} / ${cubit.quizList.length} card${cubit.quizList.length == 1 ? '' : 's'}',
                 style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
                   color: AppColors.onSurfaceVariant,
                 ),
+              ),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  const Spacer(),
+
+                  TextButton.icon(
+                    onPressed: _currentPage > 0 ? _goToPrevious : null,
+                    icon: const Icon(Icons.arrow_back),
+                    label: const Text(
+                      'Previous',
+                      style: TextStyle(fontSize: 16),
+                    ),
+                  ),
+                  const Spacer(flex: 2),
+                  TextButton.icon(
+                    onPressed: _currentPage < cubit.quizList.length - 1
+                        ? () => _goToNext(cubit.quizList.length)
+                        : null,
+                    icon: const Icon(Icons.arrow_forward),
+                    label: const Text(
+                      'Next',
+                      style: TextStyle(fontSize: 16),
+                    ),
+                  ),
+                  const Spacer(),
+                ],
               ),
               const Spacer(),
             ],
